@@ -113,12 +113,15 @@ void read_headers(unsigned char h_buf, unsigned char *path, int flags, int type)
                printf("x");
             }
          }
+         else {
+            printf("-");
+         }
          i++;
       }
       printf(" ");
 
       /*print owner*/
-      printf("%s/%s", h_buf[OWNR_OFFSET], h_buf[GRUP_OFFSET]);
+      printf("%s/%s", h_buf[OWNR_OFFSET], h_buf[GRUP_OFFSET]); /*might be wrong*/
 
       /*print size*/
       /*print proper number of spaces based on length of size*/
@@ -126,13 +129,18 @@ void read_headers(unsigned char h_buf, unsigned char *path, int flags, int type)
 
 
       /*print time*/
-
+      /*strftime(buffer, 16, "%Y-%m-%d %H:%M ", h_buf);*/
+      printf("%s ", h_buf[TIME_OFFSET]); /*TODO: temporary gotta format*/
 
       /*print pathname*/
-      printf("%s", path);
+      printf("%s\n", path);
+
    }
    else {
    /*print without verbose*/
+
+      /*print pathname*/
+      printf("%s\n", path);
    }
    printf("hello Mr. Obama? hewp pwease Mr obama Ill do anyfing\n");
 }
