@@ -49,12 +49,12 @@ int main(int argc, char *argv[]) {
       exit(EXIT_FAILURE);
    }
 
-   ret = traverse_nftw("./");    
+   ret = traverse_nftw("./"); 
 
    return 0;
 }
 
-
+/*fills flags array based on the command line argument string*/
 int *get_flags(char *c, int flags[]) {
    while (*c != '\0') {
       if (*c == 'c') {
