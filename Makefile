@@ -8,11 +8,14 @@ LDFLAGS =
 
 all: mytar
 
-mytar: main.o
-	$(LD) $(CFLAGS) -o mytar main.o
+mytar: main.o direct.o
+	$(LD) $(CFLAGS) -o mytar main.o direct.o
 
 main.o: main.c main.h
 	$(CC) $(CFLAGS) -c main.c
+
+direct.o: direct.c direct.h
+	$(CC) $(CFLAGS) -c direct.c
 
 clean: 
 	rm -f *.o mytar
