@@ -16,3 +16,7 @@ int nftw_function(char *path, struct stat *buf, int fileflags, struct FTW *ftw) 
    printf("hello world!");
    return 0;
 }
+
+int traverse(char *path) {
+   printf("boy!");
+}
