@@ -31,7 +31,7 @@ int read_headers(char *argv, int num, int fd, int flags) {
          /*check if the current path contains the name of a requested path*/
          for (i = 3; i < num, i++) {
             if (strstr(path, argv[i]) != NULL) {
-               print_header(h_buf, flags);
+               print_header(h_buf, path, flags, 0);
             }
          }
          read_blocks(fd);
@@ -41,7 +41,13 @@ int read_headers(char *argv, int num, int fd, int flags) {
          /*check if the current path contains the name of a requested path*/
          for (i = 3; i < num, i++) {
             if (strstr(path, argv[i]) != NULL) {
-               print_header(h_buf, flags);
+               if (*h_bufp == 'd') {
+                  /*type is dir*/
+                  print_header(h_buf, path, flags, 1);
+               }
+               else {
+                  /*type is symlink*/
+                  print_header(h_buf, path, flags, 2);
             }
          }
       }
@@ -69,6 +75,64 @@ void read_blocks(int fd) {
 
 
 /*prints data from headers based on flags*/
-void read_headers(unsigned char h_buf, int flags) {
+void read_headers(unsigned char h_buf, unsigned char *path, int flags, int type) {
+   int mod, i;
+
+   if (flags == 0) {
+      /*print with verbose*/
+
+      /*print file type*/
+      if (type == 0) {
+         /*type isn't dir or symlink*/
+         printf("-");
+      }
+      else if (type == 1) {
+         /*type is dir*/
+         printf("d");
+      }
+      else {
+         /*type is symlink*/
+         printf("l");
+      }
+
+      /*print permissions*/
+      int i = 0;
+      /*loop until the permissions have been read*/
+      while (/*permissions at i aren't finished*/) {
+         if (/*permission bit is set*/) {
+            /*permission bit i is set*/
+            mod = i % 3;
+
+            if (mod == 1) {
+               printf("r");
+            }
+            else if (mod == 2) {
+               printf("w");
+            }
+            else {
+               printf("x");
+            }
+         }
+         i++;
+      }
+      printf(" ");
+
+      /*print owner*/
+      printf("%s/%s", h_buf[OWNR_OFFSET], h_buf[GRUP_OFFSET]);
+
+      /*print size*/
+      /*print proper number of spaces based on length of size*/
+      printf("%s ", h_buf[SIZE_OFFSET]);
+
+
+      /*print time*/
+
+
+      /*print pathname*/
+      printf("%s", path);
+   }
+   else {
+   /*print without verbose*/
+   }
    printf("hello Mr. Obama? hewp pwease Mr obama Ill do anyfing\n");
 }

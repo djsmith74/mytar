@@ -45,11 +45,11 @@ int main(int argc, char *argv[]) {
 
       if (flags[3] == 1) {
          /*print with verbose*/
-         table_main(argv, argc - 2, infd, 0);
+         table_main(argv, argc, infd, 0);
       }
       else {
          /*print*/
-         table_main(argv, argc - 2, infd, 1);
+         table_main(argv, argc, infd, 1);
       }
    }
    else if (flags[2] == 1) {
