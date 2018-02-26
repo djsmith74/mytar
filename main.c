@@ -5,6 +5,7 @@
 #include "direct.h"
 
 int main(int argc, char *argv[]) {
+   int infdi, outfd;
    int flags[5] = {0};
    int ret = 0;
 
@@ -34,11 +35,21 @@ int main(int argc, char *argv[]) {
       }
    }
    else if (flags[1] == 1) {
+      /*t flag*/
+
+      infd = open(argv[2], O_RDONLY);
+      if (infd == -1) {
+         perror(argv[1]);
+         exit(EXIT_FAILURE);
+      }
+
       if (flags[3] == 1) {
          /*print with verbose*/
+         table_main(argv, argc - 2, infd, 0);
       }
       else {
          /*print*/
+         table_main(argv, argc - 2, infd, 1);
       }
    }
    else if (flags[2] == 1) {
