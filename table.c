@@ -2,45 +2,52 @@
 
 #include "table.h"
 
-int table_main(char *argv, int num, int fd, int flags) {
+int table_main(char *argv[], int num, int fd, int flags) {
    /*this will do something sometime*/
-   read_headers();
+   read_headers(argv, num, fd, flags);
+   return 0;
 }
 
 
 /*goes through entire file and prints all headers requested*/
-int read_headers(char *argv, int num, int fd, int flags) {
+int read_headers(char *argv[], int num, int fd, int flags) {
    unsigned char h_buf[500];
    unsigned char *h_bufp;
    unsigned char *path, *name;
-   int size, i;
+   char **endptr;
+   int i;
 
-   while ((size = read(fd, h_buf, sizeof(char))) > 0) {
+   path = NULL;
+   name = NULL;
+
+   while (read(fd, &h_buf, sizeof(char)) > 0) {
       h_bufp = h_buf;
       h_bufp += TYPE_OFFSET;
       
       /*get the prefix and the name*/
-      strcpy(path, h_buf[PREF_OFFSET]);
-      strcpy(name, h_buf[NAME_OFFSET]);
+      strcpy((char*)path, (char*)&h_buf[PREF_OFFSET]);
+      strcpy((char*)name, (char*)&h_buf[NAME_OFFSET]);
 
       /*turn the prefix and name into a path*/
-      strcat(path, name);
+      strcat((char*)path,(char*)name);
 
       /*header for a file*/
       if (*h_bufp == '0' || *h_bufp == '\0') {
          /*check if the current path contains the name of a requested path*/
-         for (i = 3; i < num, i++) {
-            if (strstr(path, argv[i]) != NULL) {
+         for (i = 3; i < num; i++) {
+            if (strstr((char*)path, &argv[i]) != NULL) {
                print_header(h_buf, path, flags, 0);
             }
          }
-         read_blocks(fd);
+         if (strtol(h_buf[SIZE_OFFSET], endptr, 8) != 0) {
+            read_blocks(fd);
+         }
       }
       /*header for a dir/symlink*/
       else {
          /*check if the current path contains the name of a requested path*/
-         for (i = 3; i < num, i++) {
-            if (strstr(path, argv[i]) != NULL) {
+         for (i = 3; i < num; i++) {
+            if (strstr((char*)path, &argv[i]) != NULL) {
                if (*h_bufp == 'd') {
                   /*type is dir*/
                   print_header(h_buf, path, flags, 1);
@@ -48,6 +55,7 @@ int read_headers(char *argv, int num, int fd, int flags) {
                else {
                   /*type is symlink*/
                   print_header(h_buf, path, flags, 2);
+               }
             }
          }
       }
@@ -62,21 +70,24 @@ void read_blocks(int fd) {
    int size;
 
    /*reads a block*/
-   size = read(fd, b_buf, sizeof(char));
+   read(fd, &b_buf, sizeof(char));
 
    /*breaks at first null block*/
    while (b_buf[0] != '\0') {
-      size = read(fd, b_buf, sizeof(char));
+      read(fd, &b_buf, sizeof(char));
    }
 
    /*reads second null block, the final block*/
-   size = read(fd, b_buf, sizeof(char));
+   read(fd, &b_buf, sizeof(char));
 }
 
 
 /*prints data from headers based on flags*/
-void read_headers(unsigned char h_buf, unsigned char *path, int flags, int type) {
+void print_headers(unsigned char *h_buf, unsigned char *path, int flags, int type) {
    int mod, i;
+   char permissions[8];
+   char owner[8];
+   char group[8];
 
    if (flags == 0) {
       /*print with verbose*/
@@ -96,10 +107,11 @@ void read_headers(unsigned char h_buf, unsigned char *path, int flags, int type)
       }
 
       /*print permissions*/
-      int i = 0;
+      i = 0;
       /*loop until the permissions have been read*/
-      while (/*permissions at i aren't finished*/) {
-         if (/*permission bit is set*/) {
+      snprintf(permissions, 8, "%08o", h_buf[MODE_OFFSET]);
+      while (i < 8) {
+         if (permissions[i] == '1') {
             /*permission bit i is set*/
             mod = i % 3;
 
@@ -121,11 +133,13 @@ void read_headers(unsigned char h_buf, unsigned char *path, int flags, int type)
       printf(" ");
 
       /*print owner*/
-      printf("%s/%s", h_buf[OWNR_OFFSET], h_buf[GRUP_OFFSET]); /*might be wrong*/
+      snprintf(owner, 8, "%08o", h_buf[OWNR_OFFSET]);
+      snprintf(group, 8, "%08o", h_buf[GRUP_OFFSET]);
+      printf("%s/%s", owner, group);
 
       /*print size*/
       /*print proper number of spaces based on length of size*/
-      printf("%s ", h_buf[SIZE_OFFSET]);
+      printf("%d ", h_buf[SIZE_OFFSET]);
 
 
       /*print time*/
@@ -143,4 +157,11 @@ void read_headers(unsigned char h_buf, unsigned char *path, int flags, int type)
       printf("%s\n", path);
    }
    printf("hello Mr. Obama? hewp pwease Mr obama Ill do anyfing\n");
+}
+
+
+char *create_time(int time) {
+   /*will create the time string*/
+   char *s = "hello";
+   return s;
 }

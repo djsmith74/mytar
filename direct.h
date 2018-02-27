@@ -7,8 +7,10 @@
 
 #define _XOPEN_SOURCE 500
 
-void traversal_nftw(char *path);
+/*void traversal_nftw(char *path);
 
 int nftw_function(char *path, struct stat *buf, int fileflags, struct FTW *ftw);
+*/
+int traverse(char *path);
 
 #endif

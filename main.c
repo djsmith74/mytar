@@ -5,9 +5,8 @@
 #include "direct.h"
 
 int main(int argc, char *argv[]) {
-   int infdi, outfd;
+   int infd, outfd;
    int flags[5] = {0};
-   int ret = 0;
 
    /*check number of command line arguments*/
    if (argc < 3) {
@@ -60,7 +59,6 @@ int main(int argc, char *argv[]) {
       exit(EXIT_FAILURE);
    }
 
-   ret = traverse_nftw("./"); 
 
    return 0;
 }
