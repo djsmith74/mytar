@@ -76,7 +76,7 @@ int create_main(int argc, char *argv[], int fd, int flags) {
 }
 
 /* Creates the archive entry with the header and file blocks */
-void add_archive_entry(char *pathname, int fd, int filetype, int flags) {
+void add_archive_entry(char *pathname, char *name, int fd, int filetype, int flags) {
     struct stat sb;
     char* header;
     char* buffer;
@@ -89,7 +89,7 @@ void add_archive_entry(char *pathname, int fd, int filetype, int flags) {
 
     buffer = calloc(BLOCK_SIZE, sizeof(char));
     fd_read = open(pathname, O_RDONLY); 
-    header = create_header(pathname, filetype);
+    header = create_header(pathname, name, filetype);
     end_block1 = calloc(BLOCK_SIZE, sizeof(char));
     end_block2 = calloc(BLOCK_SIZE, sizeof(char));
 
@@ -97,7 +97,7 @@ void add_archive_entry(char *pathname, int fd, int filetype, int flags) {
     memset(end_block1, '\0', BLOCK_SIZE*sizeof(char));
     memset(end_block2, '\0', BLOCK_SIZE*sizeof(char));
 
-    lstat(pathname, &sb);
+    lstat(name, &sb);
     write(fd, header, BLOCK_SIZE);
     if (filetype == 0 && sb.st_size > 0) {
         while((i = read(fd_read, buffer, BLOCK_SIZE)) > 0) {
@@ -113,7 +113,7 @@ void add_archive_entry(char *pathname, int fd, int filetype, int flags) {
 /* Fills a 512 byte block withheader information
  * Location for each field is defined in the header
  */
-char* create_header ( char *pathname, int fileflag) {
+char* create_header ( char *pathname, char *name, int fileflag) {
     /* VARIABLES */
     struct stat sb;
     DIR *d;
@@ -146,7 +146,7 @@ char* create_header ( char *pathname, int fileflag) {
     }
     memset(h_buffer, '\0', BLOCK_SIZE*sizeof(char));
   
-    if (lstat( pathname, &sb ) == -1) {
+    if (lstat( name, &sb ) == -1) {
         perror("bad stat");
         exit(EXIT_FAILURE);
     }

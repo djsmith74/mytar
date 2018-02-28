@@ -64,8 +64,8 @@
 
 /* FUNCTIONS */
 int create_main(int argc, char *argv[], int fd, int flags);
-void add_archive_entry(char *pathname, int fd, int filetype, int flags);
-char* create_header ( char *pathname, int fileflag );
+void add_archive_entry(char *pathname, char *name, int fd, int filetype, int flags);
+char* create_header ( char *pathname, char *name, int fileflag );
 char* create_chksum (int chk_sum );
 char* create_name ( char *pathname );
 char* create_mode (struct stat sb);
