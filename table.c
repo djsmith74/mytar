@@ -82,7 +82,8 @@ void read_blocks(int fd) {
 
 
 /*prints data from headers based on flags*/
-void print_header(unsigned char *h_buf, unsigned char *path, int flags, int type) {
+void print_header(unsigned char *h_buf, unsigned char *path,
+                  int flags, int type) {
    int mod, i;
    char permissions[8];
    char owner[8];

@@ -8,12 +8,12 @@ void traverse(char *pathname, int outfd, int flags) {
    struct dirent *entry;
    struct stat curr;
    DIR *dp;
+   char *end;
 
-   printf("pathname: %s\n", pathname);
-
-   chdir(pathname);
-   printf("dab\n");
-   if ((dp = opendir("./")) == NULL) {
+   /*printf("pathname: %s\n", pathname);*/
+   /*printf("flags: %d\n", flags);*/
+   /*printf("dab\n");*/
+   if ((dp = opendir(pathname)) == NULL) {
       perror("traverse");
       exit(EXIT_FAILURE);
    }
@@ -23,41 +23,48 @@ void traverse(char *pathname, int outfd, int flags) {
          continue;
       } 
 
-      if (lstat(entry->d_name, &curr) == -1) {
+      if (lstat(strcat(pathname, entry->d_name), &curr) == -1) {
          perror("traverse");
          exit(EXIT_FAILURE);
       }
 
       if (S_ISDIR(curr.st_mode)) {
-         printf("HELLO\n");
-         strcat(pathname, entry->d_name);
+         /*printf("HELLO\n");*/
+         /*strcat(pathname, entry->d_name);*/
          strcat(pathname, "/");
          /*print path name if verbose is used*/
          if (flags == 0 || flags == 1) {
-            printf("%s", pathname);
+            printf("%s\n", pathname);
          }
 
          add_archive_entry(pathname, entry->d_name, outfd, 2, flags);
 
          traverse(pathname, outfd, flags);
+
+         end = pathname + strlen(pathname) - (strlen(entry->d_name) + 1);
+         *end = '\0';
       }
       else if (S_ISREG(curr.st_mode)) {
-         strcat(pathname, entry->d_name);
+         /*strcat(pathname, entry->d_name);*/
          /*print path name if verbose is used*/
          if (flags == 0 || flags == 1) {
-            printf("%s", pathname);
+            printf("%s\n", pathname);
          }
 
          add_archive_entry(pathname, entry->d_name, outfd, 0, flags);
+         end = pathname + strlen(pathname) - (strlen(entry->d_name));
+         *end = '\0';
       }
       else if (S_ISLNK(curr.st_mode)) {
-         strcat(pathname, entry->d_name);
+         /*strcat(pathname, entry->d_name);*/
          /*print path name if verbose is used*/
          if (flags == 0 || flags == 1) {
-            printf("%s", pathname);
+            printf("%s\n", pathname);
          }
 
          add_archive_entry(pathname, entry->d_name, outfd, 1, flags);
+         end = pathname + strlen(pathname) - (strlen(entry->d_name));
+         *end = '\0';
       }
    }
 }
