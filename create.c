@@ -216,6 +216,9 @@ char* create_chksum (int chk_sum) {
         chksum_buffer[i] = (chk_sum % OCTAL_NUM) + ASCII_NUM_OFFSET;  
         /*printf("chksum_buffer: %c\n", chksum_buffer[i]);*/
         chk_sum = chk_sum / OCTAL_NUM;
+        if (chk_sum != 0 && i == 0) {
+            insert_special_int(chksum_buffer, CHKSUM_LEN, chk_sum);
+        }
         i--;
     }
     return chksum_buffer;
@@ -262,6 +265,9 @@ char* create_mode ( struct stat sb ) {
     while (mode_hold != 0 && i > -1) {
         mode_buffer[i] = (mode_hold % OCTAL_NUM) + ASCII_NUM_OFFSET;  
         mode_hold = mode_hold / OCTAL_NUM;
+        if (mode_hold != 0 && i == 0) {
+            insert_special_int(mode_buffer, MODE_LEN, mode_hold);
+        }
         i--;
     }
     return mode_buffer;
@@ -282,6 +288,9 @@ char* create_uid (struct stat sb) {
     while (uid_hold != 0 && i > -1) {
         uid_buffer[i] = (uid_hold % OCTAL_NUM) + ASCII_NUM_OFFSET;  
         uid_hold = uid_hold / OCTAL_NUM;
+        if (uid_hold != 0 && i == 0) {
+            insert_special_int(uid_buffer, UID_LEN, uid_hold);
+        }
         i--;
     }
     return uid_buffer;
@@ -302,6 +311,9 @@ char* create_gid (struct stat sb) {
     while (gid_hold != 0 && i > -1) {
         gid_buffer[i] = (gid_hold % OCTAL_NUM) + ASCII_NUM_OFFSET;  
         gid_hold = gid_hold / OCTAL_NUM;
+        if (gid_hold != 0 && i == 0) {
+            insert_special_int(gid_buffer, GID_LEN, gid_hold);
+        }
         i--;
     }
  
@@ -327,9 +339,11 @@ char* create_size (struct stat sb, int filetype_flag) {
     while (size_hold != 0 && i > -1) {
         size_buffer[i] = (size_hold % OCTAL_NUM) + ASCII_NUM_OFFSET;  
         size_hold = size_hold / OCTAL_NUM;
+        if (size_hold != 0 && i == 0) {
+            insert_special_int(size_buffer, SIZE_LEN, size_hold);
+        }
         i--;
     }
- 
     return size_buffer;
 }
 
@@ -347,6 +361,9 @@ char* create_mtime (struct stat sb) {
     while (mtime_hold != 0 && i > -1) {
         mtime_buffer[i] = (mtime_hold % OCTAL_NUM) + ASCII_NUM_OFFSET;  
         mtime_hold = mtime_hold / OCTAL_NUM;
+        if (mtime_hold != 0 && i == 0) {
+            insert_special_int(mtime_buffer, MTIME_LEN, mtime_hold);
+        }
         i--;
     }
  
@@ -447,3 +464,26 @@ char* create_prefix ( char *pathname ) {
     return prefix_buffer; 
 }
 
+/* For interoperability with GNU tar. GNU seems to
+ * set the high–order bit of the first byte, then
+ * treat the rest of the field as a binary integer
+ * in network byte order.
+ * Insert the given integer into the given field
+ * using this technique. Returns 0 on success, nonzero * otherwise
+ * */
+int insert_special_int(char *where, size_t size, int32_t val) { 
+    int err=0;
+    if(val<0||(size<sizeof(val)) ){
+        /* if it’s negative, bit 31 is set and we can’t use the flag
+         * if len is too small, we can’t write it. * done.
+         */
+        err++;
+    } 
+    else {
+        /* game on....*/
+        memset(where, 0, size);
+        *(int32_t *)(where+size-sizeof(val)) = htonl(val); /* place the int */ 
+        *where |= 0x80; /* set that high–order bit */
+    }
+    return err; 
+}

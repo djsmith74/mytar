@@ -81,5 +81,6 @@ char* create_version ();
 char* create_uname (struct stat sb);
 char* create_gname (struct stat sb);
 char* create_prefix ( char *pathname );
+int insert_special_int (char *where, size_t size, int32_t val);
 
 #endif
