@@ -19,8 +19,17 @@ int main(int argc, char *argv[]) {
    get_flags(argv[1], flags);
 
    if (flags[0] == 1) {
+      /*c flag*/
+
+      outfd = open(argv[2], O_WRONLY | O_TRUNC | O_CREAT);
+      if (outfd == -1) {
+         perror(argv[2]);
+         exit(EXIT_FAILURE);
+      }
+
       if (flags[3] == 1 && flags[4] == 1) {
          /*create with verbose and strict*/
+         
       }
       else if (flags[3] == 1) {
          /*create with verbose*/

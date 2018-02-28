@@ -1,18 +1,17 @@
 #ifndef DIRECT_H
 #define DIRECT_H
 
+#define _BSD_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <ftw.h>
 #include <dirent.h>
 #include <sys/types.h>
+#include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
-
-/*void traversal_nftw(char *path);
-
-int nftw_function(char *path, struct stat *buf, int fileflags, struct FTW *ftw);
-*/
-int traverse(char *path);
+void traverse(char *pathname, int outfd, int flags);
 
 #endif
