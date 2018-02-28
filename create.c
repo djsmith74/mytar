@@ -76,23 +76,38 @@ int create_main(int argc, char *argv[], int fd, int flags) {
 }
 
 /* Creates the archive entry with the header and file blocks */
-void add_archive_entry(char *pathname, int fd, int flags, int filetype) {
+void add_archive_entry(char *pathname, int fd, int filetype, int flags) {
+    struct stat sb;
     char* header;
     char* buffer;
+    char* end_block1;
+    char* end_block2;
     int block_nums;
     int i;
     int j;
     int fd_read;
+
     buffer = calloc(BLOCK_SIZE, sizeof(char));
-    fd_read = open(pathname, O_RDONLY);
-    memset(buffer, '\0', BLOCK_SIZE*sizeof(char));
+    fd_read = open(pathname, O_RDONLY); 
     header = create_header(pathname, filetype);
+    end_block1 = calloc(BLOCK_SIZE, sizeof(char));
+    end_block2 = calloc(BLOCK_SIZE, sizeof(char));
+
+    memset(buffer, '\0', BLOCK_SIZE*sizeof(char));
+    memset(end_block1, '\0', BLOCK_SIZE*sizeof(char));
+    memset(end_block2, '\0', BLOCK_SIZE*sizeof(char));
+
+    lstat(pathname, &sb);
     write(fd, header, BLOCK_SIZE);
-    if (filetype == 0) {
+    if (filetype == 0 && sb.st_size > 0) {
         while((i = read(fd_read, buffer, BLOCK_SIZE)) > 0) {
             write(fd, buffer, BLOCK_SIZE);
         }
     }
+   
+    /* Adding end blocks */
+    write(fd, end_block1, BLOCK_SIZE);
+    write(fd, end_block2, BLOCK_SIZE);
 }
 
 /* Fills a 512 byte block withheader information
