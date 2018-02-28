@@ -26,7 +26,8 @@ int read_headers(char *argv[], int num, int fd, int flags);
 
 void read_blocks(int fd);
  
-void print_header(unsigned char *h_buf, unsigned char *path, int flags, int type);
+void print_header(unsigned char *h_buf, unsigned char *path,
+                  int flags, int type);
 
 void get_perms(unsigned char *h_buf, char permissions[8]);
 
