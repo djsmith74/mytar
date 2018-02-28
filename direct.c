@@ -9,20 +9,27 @@ void traverse(char *pathname, int outfd, int flags) {
    struct stat curr;
    DIR *dp;
 
-   chdir(pathname);
+   printf("pathname: %s\n", pathname);
 
+   chdir(pathname);
+   printf("dab\n");
    if ((dp = opendir("./")) == NULL) {
       perror("traverse");
       exit(EXIT_FAILURE);
    }
 
    while ((entry = readdir(dp)) != NULL) {
+      if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+         continue;
+      } 
+
       if (lstat(entry->d_name, &curr) == -1) {
          perror("traverse");
          exit(EXIT_FAILURE);
       }
 
       if (S_ISDIR(curr.st_mode)) {
+         printf("HELLO\n");
          strcat(pathname, entry->d_name);
          strcat(pathname, "/");
          /*print path name if verbose is used*/
@@ -30,7 +37,7 @@ void traverse(char *pathname, int outfd, int flags) {
             printf("%s", pathname);
          }
 
-         add_archive_entry(pathname, outfd, 2, flags);
+         add_archive_entry(pathname, entry->d_name, outfd, 2, flags);
 
          traverse(pathname, outfd, flags);
       }
@@ -41,7 +48,7 @@ void traverse(char *pathname, int outfd, int flags) {
             printf("%s", pathname);
          }
 
-         add_archive_entry(pathname, outfd, 0, flags);
+         add_archive_entry(pathname, entry->d_name, outfd, 0, flags);
       }
       else if (S_ISLNK(curr.st_mode)) {
          strcat(pathname, entry->d_name);
@@ -50,7 +57,7 @@ void traverse(char *pathname, int outfd, int flags) {
             printf("%s", pathname);
          }
 
-         add_archive_entry(pathname, outfd, 1, flags);
+         add_archive_entry(pathname, entry->d_name, outfd, 1, flags);
       }
    }
 }

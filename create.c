@@ -73,6 +73,7 @@ int create_main(int argc, char *argv[], int fd, int flags) {
     /*header_test = calloc(BLOCK_SIZE, sizeof(char));
     header_test = create_header(path_test, 0);
    */ /*printf("header: %s\n", header_test);*/
+   return 0;
 }
 
 /* Creates the archive entry with the header and file blocks */
@@ -82,9 +83,9 @@ void add_archive_entry(char *pathname, char *name, int fd, int filetype, int fla
     char* buffer;
     char* end_block1;
     char* end_block2;
-    int block_nums;
+    /*int block_nums;*/
     int i;
-    int j;
+    /*int j;*/
     int fd_read;
 
     buffer = calloc(BLOCK_SIZE, sizeof(char));
@@ -116,8 +117,8 @@ void add_archive_entry(char *pathname, char *name, int fd, int filetype, int fla
 char* create_header ( char *pathname, char *name, int fileflag) {
     /* VARIABLES */
     struct stat sb;
-    DIR *d;
-    struct dirent entry;
+    /*DIR *d;*/
+    /*struct dirent entry;*/
     char *h_buffer;
     char *name_buff;
     char *mode_buff;
@@ -225,12 +226,12 @@ char* create_chksum (int chk_sum) {
 }
 
 /* Create the name field */
-char* create_name ( char *pathname ) {
+char* create_name ( const char *pathname ) {
     char *name_buffer;
     char *path_copy;
     char *base_name;
     int name_len;
-    int rem_name_len;
+    /*int rem_name_len;*/
 
     path_copy = strdup(pathname);
     name_buffer = calloc(NAME_LEN, sizeof(char));
@@ -241,7 +242,7 @@ char* create_name ( char *pathname ) {
         strncpy(name_buffer, base_name, name_len);
     }
     else {
-       rem_name_len = name_len = NAME_LEN;
+       /*rem_name_len = name_len = NAME_LEN;*/
        /* FINISH LATER - QUESTION: I don't get what it means that
         * names can only be broken on a '/'
         */
@@ -436,7 +437,7 @@ char* create_prefix ( char *pathname ) {
     char *prefix_buffer;
     char *path_copy;
     char *path_copy2;
-    char *dir_name;
+    /*char *dir_name;*/
     char *base_name;
     int base_len;
     int path_len;

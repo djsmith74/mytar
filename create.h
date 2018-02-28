@@ -1,6 +1,7 @@
 #ifndef CREATE_H
 #define CREATE_H
 
+#define _BSD_SOURCE
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -12,6 +13,8 @@
 #include <grp.h>
 #include <libgen.h>
 #include <fcntl.h>
+#include <wchar.h>
+#include <arpa/inet.h>
 
 /* HEADER FIELD OFFSETS */
 #define NAME 0
@@ -67,7 +70,7 @@ int create_main(int argc, char *argv[], int fd, int flags);
 void add_archive_entry(char *pathname, char *name, int fd, int filetype, int flags);
 char* create_header ( char *pathname, char *name, int fileflag );
 char* create_chksum (int chk_sum );
-char* create_name ( char *pathname );
+char* create_name ( const char *pathname );
 char* create_mode (struct stat sb);
 char* create_uid (struct stat sb);
 char* create_gid (struct stat sb);
