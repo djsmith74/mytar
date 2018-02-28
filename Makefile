@@ -11,16 +11,16 @@ all: mytar
 mytar: main.o direct.o table.o create.o
 	$(LD) $(CFLAGS) -o mytar main.o direct.o table.o create.o
 
-main.o: main.c main.h
+main.o: main.c
 	$(CC) $(CFLAGS) -c main.c 
 
-direct.o: direct.c direct.h
+direct.o: direct.c
 	$(CC) $(CFLAGS) -c direct.c
 
-table.o: table.c table.h
+table.o: table.c
 	$(CC) $(CFLAGS) -c table.c
 
-create.o: create.c create.h
+create.o: create.c
 	$(CC) $(CFLAGS) -c create.c
 
 clean: 
