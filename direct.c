@@ -1,6 +1,7 @@
 /*direct.c: traverses directories and gets the needed data*/
 
 #include "direct.h"
+#include "create.h"
 
 
 void traverse(char *pathname, int outfd, int flags) {

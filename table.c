@@ -14,7 +14,7 @@ int read_headers(char *argv[], int num, int fd, int flags) {
    unsigned char h_buf[500];
    unsigned char *h_bufp;
    unsigned char *path, *name;
-   char **endptr;
+   char **endptr = NULL;
    int i;
 
    path = NULL;
@@ -67,7 +67,6 @@ int read_headers(char *argv[], int num, int fd, int flags) {
 /*passes over blocks of data*/
 void read_blocks(int fd) {
    unsigned char b_buf[512];
-   int size;
 
    /*reads a block*/
    read(fd, &b_buf, sizeof(char));
@@ -83,12 +82,12 @@ void read_blocks(int fd) {
 
 
 /*prints data from headers based on flags*/
-void print_headers(unsigned char *h_buf, unsigned char *path, int flags, int type) {
+void print_header(unsigned char *h_buf, unsigned char *path, int flags, int type) {
    int mod, i;
    char permissions[8];
    char owner[8];
    char group[8];
-   char **endptr;
+   /*char **endptr = NULL;*/
 
    if (flags == 0) {
       /*print with verbose*/
@@ -144,8 +143,8 @@ void print_headers(unsigned char *h_buf, unsigned char *path, int flags, int typ
 
 
       /*print time*/
-      print_time(strtol((char*)&h_buf[TIME_OFFSET], endptr, 8));
-
+/*      print_time(strtol((char*)&h_buf[TIME_OFFSET], endptr, 8));
+*/
       /*print pathname*/
       printf("%s\n", path);
 
@@ -161,7 +160,7 @@ void print_headers(unsigned char *h_buf, unsigned char *path, int flags, int typ
 
 
 /*will print the time string*/
-void print_time(long int time) {
+/*void print_time(long int time) {
    char time_str[16];
    struct tim* tm_info;
 
@@ -170,4 +169,4 @@ void print_time(long int time) {
    strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M", tm_info);
 
    printf("%s", time_str);
-}
+}*/
