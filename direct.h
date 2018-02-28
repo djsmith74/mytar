@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include "create.h"
 
 void traverse(char *pathname, int outfd, int flags);
 

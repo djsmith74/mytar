@@ -35,11 +35,11 @@ int read_headers(char *argv[], int num, int fd, int flags) {
       if (*h_bufp == '0' || *h_bufp == '\0') {
          /*check if the current path contains the name of a requested path*/
          for (i = 3; i < num; i++) {
-            if (strstr((char*)path, &argv[i]) != NULL) {
+            if (strstr((char*)path, argv[i]) != NULL) {
                print_header(h_buf, path, flags, 0);
             }
          }
-         if (strtol(h_buf[SIZE_OFFSET], endptr, 8) != 0) {
+         if (strtol((char*)&h_buf[SIZE_OFFSET], endptr, 8) != 0) {
             read_blocks(fd);
          }
       }
@@ -47,7 +47,7 @@ int read_headers(char *argv[], int num, int fd, int flags) {
       else {
          /*check if the current path contains the name of a requested path*/
          for (i = 3; i < num; i++) {
-            if (strstr((char*)path, &argv[i]) != NULL) {
+            if (strstr((char*)path, argv[i]) != NULL) {
                if (*h_bufp == 'd') {
                   /*type is dir*/
                   print_header(h_buf, path, flags, 1);
@@ -88,6 +88,7 @@ void print_headers(unsigned char *h_buf, unsigned char *path, int flags, int typ
    char permissions[8];
    char owner[8];
    char group[8];
+   char **endptr;
 
    if (flags == 0) {
       /*print with verbose*/
@@ -143,8 +144,7 @@ void print_headers(unsigned char *h_buf, unsigned char *path, int flags, int typ
 
 
       /*print time*/
-      print_time(strtol(h_buf[TIME_OFFSET], endptr, 8));
-      printf("%s ", h_buf[TIME_OFFSET]); /*TODO: temporary gotta format*/
+      print_time(strtol((char*)&h_buf[TIME_OFFSET], endptr, 8));
 
       /*print pathname*/
       printf("%s\n", path);
@@ -165,8 +165,8 @@ void print_time(long int time) {
    char time_str[16];
    struct tim* tm_info;
 
-   time(&timer);
-   tm_info = localtime(&timer);
+   time(&time);
+   tm_info = localtime(&time);
    strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M", tm_info);
 
    printf("%s", time_str);

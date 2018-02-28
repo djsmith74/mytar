@@ -21,7 +21,7 @@ void traverse(char *pathname, int outfd, int flags) {
          exit(EXIT_FAILURE);
       }
 
-      if (S_IFDIR(curr.st_mode)) {
+      if (S_ISDIR(curr.st_mode)) {
          strcat(pathname, entry->d_name);
          strcat(pathname, "/");
          /*print path name if verbose is used*/
@@ -29,27 +29,27 @@ void traverse(char *pathname, int outfd, int flags) {
             printf("%s", pathname);
          }
 
-         create_archive_entry(pathname, 2, flags);
+         add_archive_entry(pathname, outfd, 2, flags);
 
          traverse(pathname, outfd, flags);
       }
-      else if(S_IFREG(curr.st_mode)) {
+      else if (S_ISREG(curr.st_mode)) {
          strcat(pathname, entry->d_name);
          /*print path name if verbose is used*/
          if (flags == 0 || flags == 1) {
             printf("%s", pathname);
          }
 
-         create_archive_entry(pathname, 0, flags);
+         add_archive_entry(pathname, outfd, 0, flags);
       }
-      else if(S_IFLNK(curr.st_mode)) {
+      else if (S_ISLNK(curr.st_mode)) {
          strcat(pathname, entry->d_name);
          /*print path name if verbose is used*/
          if (flags == 0 || flags == 1) {
             printf("%s", pathname);
          }
 
-         create_archive_entry(pathname, 1, flags);
+         add_archive_entry(pathname, outfd, 1, flags);
       }
    }
 }

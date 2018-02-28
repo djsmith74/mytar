@@ -30,6 +30,6 @@ void print_header(unsigned char *h_buf, unsigned char *path, int flags, int type
 
 void get_perms(unsigned char *h_buf, char permissions[8]);
 
-char *create_time(int time);
+void print_time(long int time);
 
 #endif
