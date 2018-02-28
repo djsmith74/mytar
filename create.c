@@ -88,6 +88,10 @@ void add_archive_entry(char *pathname, char *name, int fd, int filetype, int fla
     /*int j;*/
     int fd_read;
 
+    if (strlen(name) > NAME_LEN) {
+        return;
+    }
+
     buffer = calloc(BLOCK_SIZE, sizeof(char));
     fd_read = open(pathname, O_RDONLY); 
     header = create_header(pathname, name, filetype);
@@ -98,7 +102,7 @@ void add_archive_entry(char *pathname, char *name, int fd, int filetype, int fla
     memset(end_block1, '\0', BLOCK_SIZE*sizeof(char));
     memset(end_block2, '\0', BLOCK_SIZE*sizeof(char));
 
-    lstat(name, &sb);
+    lstat(pathname, &sb);
     write(fd, header, BLOCK_SIZE);
     if (filetype == 0 && sb.st_size > 0) {
         while((i = read(fd_read, buffer, BLOCK_SIZE)) > 0) {
@@ -147,7 +151,7 @@ char* create_header ( char *pathname, char *name, int fileflag) {
     }
     memset(h_buffer, '\0', BLOCK_SIZE*sizeof(char));
   
-    if (lstat( name, &sb ) == -1) {
+    if (lstat(pathname, &sb) == -1) {
         perror("bad stat");
         exit(EXIT_FAILURE);
     }
@@ -240,12 +244,6 @@ char* create_name ( const char *pathname ) {
     name_len = strlen(base_name);
     if (name_len <= NAME_LEN) {
         strncpy(name_buffer, base_name, name_len);
-    }
-    else {
-       /*rem_name_len = name_len = NAME_LEN;*/
-       /* FINISH LATER - QUESTION: I don't get what it means that
-        * names can only be broken on a '/'
-        */
     }
     return name_buffer;
 }
