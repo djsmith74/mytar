@@ -1,31 +1,61 @@
 /*direct.c: traverses directories and gets the needed data*/
 
-#include <ftw.h>
 #include "direct.h"
 
-/*void traverse_nftw(char *path) {
-   struct stat buf;
-   int ret;
-   int flags = FTW_CHDIR | FTW_MOUNT | FTW_PHYS;
 
-
-   ret = nftw(path, nftw_funtion, 5, flags);
-}
-
-int nftw_function(char *path, struct stat *buf, int fileflags, struct FTW *ftw) {
-   printf("hello world!");
-   return 0;
-}
-*/
-int start_traverse(char *path){
+void traverse(char *pathname, int outfd, int flags) {
+   struct dirent *entry;
    struct stat curr;
+   DIR *dp;
 
-   if (lstat("./", &curr) == -1) {
-      perror("start_traverse");
+   chdir(pathname);
+
+   if ((dp = opendir("./")) == NULL) {
+      perror("traverse");
       exit(EXIT_FAILURE);
    }
 
-void traverse(struct stat curr, char *pathname, int flags) {
+   while ((entry = readdir(dp)) != NULL) {
+      if (lstat(entry->d_name, &curr) == -1) {
+         perror("traverse");
+         exit(EXIT_FAILURE);
+      }
+
+      if (S_IFDIR(curr.st_mode)) {
+         strcat(pathname, entry->d_name);
+         strcat(pathname, "/");
+         /*print path name if verbose is used*/
+         if (flags == 0 || flags == 1) {
+            printf("%s", pathname);
+         }
+
+         create_archive_entry(pathname, 2, flags);
+
+         traverse(pathname, outfd, flags);
+      }
+      else if(S_IFREG(curr.st_mode)) {
+         strcat(pathname, entry->d_name);
+         /*print path name if verbose is used*/
+         if (flags == 0 || flags == 1) {
+            printf("%s", pathname);
+         }
+
+         create_archive_entry(pathname, 0, flags);
+      }
+      else if(S_IFLNK(curr.st_mode)) {
+         strcat(pathname, entry->d_name);
+         /*print path name if verbose is used*/
+         if (flags == 0 || flags == 1) {
+            printf("%s", pathname);
+         }
+
+         create_archive_entry(pathname, 1, flags);
+      }
+   }
+}
+
+/*
+void traverse(char *pathname, int flags) {
    struct dirent entry;
    struct stat curr;
    DIR *dp;
@@ -45,18 +75,18 @@ void traverse(struct stat curr, char *pathname, int flags) {
       }
 
       if (S_IFDIR(curr.st_mode)) {
-         strcat(pathname, "/");
          strcat(pathname, entry->d_name);
-         /*print path name if verbose is used*/
+         strcat(pathname, "/");
          if (flags == 0 || flags == 1) {
             printf("%s", pathname);
          }
+
+         create_archive_entry(pathname, 2, flags);
 
          traverse(pathname);
       }
    }
 
-   /*return to beginning of directory*/
    seekdir(dp, offset);
 
    while ((entry = readdir(dp)) != NULL) {
@@ -66,24 +96,17 @@ void traverse(struct stat curr, char *pathname, int flags) {
       }
 
       if (S_IFREG(curr.st_mode)) {
-         /*add to pathname and call create on it*/
+         strcat(pathname, entry->d_name);
+         if (flags == 0 || flags == 1) {
+            printf("%s", pathname);
+         }
+
+         create_archive_entry(pathname, 0, flags);
 
    if ((entry = readdir(dp)) != NULL)
 
 
 
-
-int traverse(void) {
-   struct stat curr;
-   struct dirent entry;
-   DIR *dp;
-
-   if (lstat("./", &curr) == -1) {
-      perror("traverse");
-      exit(EXIT_FAILURE);
-   }
-   if ((entry = readdir(dp)) != NULL)
-   
    printf("boy!");
 }
 if ((dp = opendir("./")) == NULL) {
@@ -109,3 +132,4 @@ if ((dp = opendir("./")) == NULL) {
          exit(EXIT_FAILURE);
    }
 }
+*/
