@@ -143,7 +143,7 @@ void print_headers(unsigned char *h_buf, unsigned char *path, int flags, int typ
 
 
       /*print time*/
-      /*strftime(buffer, 16, "%Y-%m-%d %H:%M ", h_buf);*/
+      print_time(strtol(h_buf[TIME_OFFSET], endptr, 8));
       printf("%s ", h_buf[TIME_OFFSET]); /*TODO: temporary gotta format*/
 
       /*print pathname*/
@@ -160,8 +160,14 @@ void print_headers(unsigned char *h_buf, unsigned char *path, int flags, int typ
 }
 
 
-char *create_time(int time) {
-   /*will create the time string*/
-   char *s = "hello";
-   return s;
+/*will print the time string*/
+void print_time(long int time) {
+   char time_str[16];
+   struct tim* tm_info;
+
+   time(&timer);
+   tm_info = localtime(&timer);
+   strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M", tm_info);
+
+   printf("%s", time_str);
 }

@@ -17,8 +17,62 @@ int nftw_function(char *path, struct stat *buf, int fileflags, struct FTW *ftw) 
    return 0;
 }
 */
+int start_traverse(char *path){
+   struct stat curr;
 
-/*
+   if (lstat("./", &curr) == -1) {
+      perror("start_traverse");
+      exit(EXIT_FAILURE);
+   }
+
+void traverse(struct stat curr, char *pathname, int flags) {
+   struct dirent entry;
+   struct stat curr;
+   DIR *dp;
+   int offset = 0;
+
+   if ((dp = opendir("./")) == NULL) {
+      perror("traverse");
+      exit(EXIT_FAILURE);
+   }
+
+   offset = telldir(dp);
+
+   while ((entry = readdir(dp)) != NULL) {
+      if (lstat(entry->d_name, &curr) == -1) {
+         perror("traverse");
+         exit(EXIT_FAILURE);
+      }
+
+      if (S_IFDIR(curr.st_mode)) {
+         strcat(pathname, "/");
+         strcat(pathname, entry->d_name);
+         /*print path name if verbose is used*/
+         if (flags == 0 || flags == 1) {
+            printf("%s", pathname);
+         }
+
+         traverse(pathname);
+      }
+   }
+
+   /*return to beginning of directory*/
+   seekdir(dp, offset);
+
+   while ((entry = readdir(dp)) != NULL) {
+      if (lstat(entry->d_name, &curr) == -1) {
+         perror("traverse");
+         exit(EXIT_FAILURE);
+      }
+
+      if (S_IFREG(curr.st_mode)) {
+         /*add to pathname and call create on it*/
+
+   if ((entry = readdir(dp)) != NULL)
+
+
+
+
 int traverse(void) {
    struct stat curr;
    struct dirent entry;
@@ -54,5 +108,4 @@ if ((dp = opendir("./")) == NULL) {
          perror("mypwd");
          exit(EXIT_FAILURE);
    }
-*/
-
+}

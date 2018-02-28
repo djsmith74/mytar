@@ -4,8 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ftw.h>
+#include <dirent.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-#define _XOPEN_SOURCE 500
 
 /*void traversal_nftw(char *path);
 
