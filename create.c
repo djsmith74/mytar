@@ -4,7 +4,7 @@
 int create_main(int argc, char *argv[], int fd, int flags) {
     int i;
     for (i = 3; i < argc; i++) {
-        traverse(argv[i], fd, flags);
+        start_traverse(argv[i], fd, flags);
     }
 /* struct stat stat_buf;
     stat("./", &stat_buf);

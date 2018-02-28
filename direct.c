@@ -3,6 +3,13 @@
 #include "direct.h"
 #include "create.h"
 
+void start_traverse(char *pathname, int outfd, int flags) {
+
+   printf("%s\n", pathname);    
+   add_archive_entry(pathname, pathname, outfd, 2, flags);
+   traverse(pathname, outfd, flags);
+
+}
 
 void traverse(char *pathname, int outfd, int flags) {
    struct dirent *entry;

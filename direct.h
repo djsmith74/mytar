@@ -15,4 +15,6 @@
 
 void traverse(char *pathname, int outfd, int flags);
 
+void start_traverse(char *pathname, int outfd, int flags);
+
 #endif
