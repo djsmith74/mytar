@@ -12,6 +12,7 @@
 #include <grp.h>
 #include <libgen.h>
 #include <fcntl.h>
+#include <wchar.h>
 
 /* HEADER FIELD OFFSETS */
 #define NAME 0
@@ -61,13 +62,14 @@
 #define ASCII_NUM_OFFSET 48
 #define OCTAL_NUM 8
 #define SPACE_ASCII 32
+#define _BSD_SOURCE
 
 /* FUNCTIONS */
 int create_main(int argc, char *argv[], int fd, int flags);
 void add_archive_entry(char *pathname, int fd, int filetype, int flags);
 char* create_header ( char *pathname, int fileflag );
 char* create_chksum (int chk_sum );
-char* create_name ( char *pathname );
+char* create_name ( const char *pathname );
 char* create_mode (struct stat sb);
 char* create_uid (struct stat sb);
 char* create_gid (struct stat sb);

@@ -29,16 +29,19 @@ int main(int argc, char *argv[]) {
 
       if (flags[3] == 1 && flags[4] == 1) {
          /*create with verbose and strict*/
-         
+         create_main(argc, argv, outfd, 0); 
       }
       else if (flags[3] == 1) {
          /*create with verbose*/
+         create_main(argc, argv, outfd, 1); 
       }
       else if (flags[4] == 1) {
          /*create with strict*/
+         create_main(argc, argv, outfd, 2); 
       }
       else {
          /*create*/
+         create_main(argc, argv, outfd, 3); 
          
       }
    }
