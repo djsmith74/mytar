@@ -73,11 +73,12 @@ int create_main(int argc, char *argv[], int fd, int flags) {
     /*header_test = calloc(BLOCK_SIZE, sizeof(char));
     header_test = create_header(path_test, 0);
    */ /*printf("header: %s\n", header_test);*/
-   return 0;
+    return 0;
 }
 
 /* Creates the archive entry with the header and file blocks */
-void add_archive_entry(char *pathname, char *name, int fd, int filetype, int flags) {
+void add_archive_entry(char *pathname, char *name, int fd,
+                        int filetype, int flags) {
     struct stat sb;
     char* header;
     char* buffer;
@@ -172,8 +173,8 @@ char* create_header ( char *pathname, char *name, int fileflag) {
     gname_buff = create_gname(sb);
     devmajor_buff = calloc(DEVMAJOR_LEN, sizeof(char));
     devminor_buff = calloc(DEVMINOR_LEN, sizeof(char));
-    memset(devmajor_buff, '\0', DEVMAJOR_LEN*sizeof(char)); /* TO DO: CHANGE BACK TO '\0'" */
-    memset(devminor_buff, '\0', DEVMINOR_LEN*sizeof(char)); /* TO DO: CHANGE BACK TO '\0'" */
+    memset(devmajor_buff, '\0', DEVMAJOR_LEN*sizeof(char)); 
+    memset(devminor_buff, '\0', DEVMINOR_LEN*sizeof(char));
     prefix_buff = create_prefix(pathname);
 
     memcpy(h_buffer + NAME, name_buff, NAME_LEN*sizeof(char));
@@ -213,7 +214,7 @@ char* create_chksum (int chk_sum) {
     char *chksum_buffer;
     
     chksum_buffer = calloc(CHKSUM_LEN, sizeof(char));
-    memset(chksum_buffer, '\0', CHKSUM_LEN*sizeof(char)); /* TO DO: CHANGE BACK TO '\0'" */ 
+    memset(chksum_buffer, '\0', CHKSUM_LEN*sizeof(char)); 
     memset(chksum_buffer, '0', (CHKSUM_LEN-1)*sizeof(char));
     i = CHKSUM_LEN-2;
    
@@ -239,7 +240,7 @@ char* create_name ( const char *pathname ) {
 
     path_copy = strdup(pathname);
     name_buffer = calloc(NAME_LEN, sizeof(char));
-    memset(name_buffer, '\0', NAME_LEN*sizeof(char)); /* TO DO: COMMENT OUT */
+    memset(name_buffer, '\0', NAME_LEN*sizeof(char)); 
     base_name = basename(path_copy);
     name_len = strlen(base_name);
     if (name_len <= NAME_LEN) {
@@ -256,7 +257,7 @@ char* create_mode ( struct stat sb ) {
     mode_t mode_hold;
 
     mode_buffer = calloc(MODE_LEN, sizeof(char));    
-    memset(mode_buffer, '\0', MODE_LEN*sizeof(char)); /* TO DO: CHANGE BACK TO '\0'" */
+    memset(mode_buffer, '\0', MODE_LEN*sizeof(char)); 
     memset(mode_buffer, '0', (MODE_LEN-1)*sizeof(char));
     mode_hold = sb.st_mode;  
     i = MODE_LEN-2;
@@ -279,7 +280,7 @@ char* create_uid (struct stat sb) {
     int i;
     uid_t uid_hold;
     uid_buffer = calloc(UID_LEN, sizeof(char));
-    memset(uid_buffer, '\0', UID_LEN*sizeof(char)); /* TO DO: CHANGE BACK TO '\0'" */
+    memset(uid_buffer, '\0', UID_LEN*sizeof(char)); 
     memset(uid_buffer, '0', (UID_LEN-1)*sizeof(char));   
     uid_hold = sb.st_uid;  
     i = UID_LEN-2;
@@ -302,7 +303,7 @@ char* create_gid (struct stat sb) {
     int i;
     gid_t gid_hold;
     gid_buffer = calloc(GID_LEN, sizeof(char));
-    memset(gid_buffer, '\0', GID_LEN*sizeof(char)); /* TO DO: CHANGE BACK TO '\0'" */
+    memset(gid_buffer, '\0', GID_LEN*sizeof(char)); 
     memset(gid_buffer, '0', (GID_LEN-1)*sizeof(char));   
     gid_hold = sb.st_gid;  
     i = GID_LEN-2;
@@ -389,7 +390,7 @@ char create_typeflag (int ftype_flag) {
 char* create_linkname(char *pathname, int ftype_flag) {
     char *linkname_buffer;
     linkname_buffer = calloc(LINKNAME_LEN, sizeof(char));
-    memset(linkname_buffer, '\0', LINKNAME_LEN*sizeof(char)); /* TO DO: CHANGE BACK TO '\0'" */
+    memset(linkname_buffer, '\0', LINKNAME_LEN*sizeof(char));
     if (ftype_flag == 1) {
         if (readlink(pathname, linkname_buffer, LINKNAME_LEN) == -1) {
             perror("bad readlink");
@@ -414,7 +415,7 @@ char* create_version () {
 char* create_uname (struct stat sb) {
     char *uname_buffer;
     uname_buffer = calloc(UNAME_LEN, sizeof(char));
-    memset(uname_buffer, '\0', UNAME_LEN*sizeof(char)); /* TO DO: CHANGE BACK TO '\0'" */
+    memset(uname_buffer, '\0', UNAME_LEN*sizeof(char));
     strncpy(uname_buffer, getpwuid(sb.st_uid)->pw_name, UNAME_LEN);
     return uname_buffer;
 }
@@ -423,7 +424,7 @@ char* create_uname (struct stat sb) {
 char* create_gname (struct stat sb) {
     char *gname_buffer;
     gname_buffer = calloc(GNAME_LEN, sizeof(char));
-    memset(gname_buffer, '\0', GNAME_LEN*sizeof(char)); /* TO DO: CHANGE BACK TO '\0'" */
+    memset(gname_buffer, '\0', GNAME_LEN*sizeof(char));
     strncpy(gname_buffer, getgrgid(sb.st_gid)->gr_name, GNAME_LEN);
     return gname_buffer;
 }
@@ -481,7 +482,7 @@ int insert_special_int(char *where, size_t size, int32_t val) {
     else {
         /* game on....*/
         memset(where, 0, size);
-        *(int32_t *)(where+size-sizeof(val)) = htonl(val); /* place the int */ 
+        *(int32_t *)(where+size-sizeof(val)) = htonl(val);
         *where |= 0x80; /* set that high–order bit */
     }
     return err; 
