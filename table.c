@@ -121,10 +121,9 @@ void read_blocks(int fd, long int size) {
 /*prints data from headers based on flags*/
 void print_header(unsigned char *h_buf, unsigned char *path,
                   int flags, int type) {
-   int mod, i;
-   char permissions[8];
-   char owner[8];
-   char group[8];
+   long int size;
+   char owner[32];
+   char group[32];
    char **endptr = NULL;
 
    if (flags == 0) {
@@ -145,12 +144,12 @@ void print_header(unsigned char *h_buf, unsigned char *path,
       }
 
       /*print permissions*/
-      i = 0;
-      /*loop until the permissions have been read*/
-      snprintf(permissions, 8, "%08o", h_buf[MODE_OFFSET]);
-      while (i < 8) {
+      print_perms((char*)&h_buf[MODE_OFFSET]);
+      /*i = 0;
+      snprintf(permissions, 10, "%09o", h_buf[MODE_OFFSET]);
+      while (i < 9) {
+         printf("%c\n", permissions[i]);
          if (permissions[i] == '1') {
-            /*permission bit i is set*/
             mod = i % 3;
 
             if (mod == 1) {
@@ -168,16 +167,18 @@ void print_header(unsigned char *h_buf, unsigned char *path,
          }
          i++;
       }
+      */
       printf(" ");
 
       /*print owner*/
-      snprintf(owner, 8, "%08o", h_buf[OWNR_OFFSET]);
-      snprintf(group, 8, "%08o", h_buf[GRUP_OFFSET]);
+      snprintf(owner, 32, "%s", (char*)&h_buf[OWNR_OFFSET]);
+      snprintf(group, 32, "%s", (char*)&h_buf[GRUP_OFFSET]);
       printf("%s/%s", owner, group);
 
       /*print size*/
       /*print proper number of spaces based on length of size*/
-      printf("%d ", h_buf[SIZE_OFFSET]);
+      size = strtol((char*)&h_buf[SIZE_OFFSET], endptr, 8);
+      printf("%9lu ", size);
 
 
       /*print time*/
@@ -192,6 +193,40 @@ void print_header(unsigned char *h_buf, unsigned char *path,
 
       /*print pathname*/
       printf("%s\n", path);
+   }
+}
+
+void print_perms(char *oct) {
+   int i = 4;
+   char c;
+
+   for (; i < 7; i++) {
+      c = oct[i];
+      switch(c) {
+         case '1':
+            printf("--x");
+            break;
+         case '2':
+            printf("-w-");
+            break;
+         case '3':
+            printf("-wx");
+            break;
+         case '4':
+            printf("r--");
+            break;
+         case '5':
+            printf("r-x");
+            break;
+         case '6':
+            printf("rw-");
+            break;
+         case '7':
+            printf("rwx");
+            break;
+         default :
+            printf("---");
+      }
    }
 }
 

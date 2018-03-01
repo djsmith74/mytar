@@ -13,11 +13,11 @@
 
 #define NAME_OFFSET 0
 #define MODE_OFFSET 100
-#define OWNR_OFFSET 108
-#define GRUP_OFFSET 116
 #define SIZE_OFFSET 124
 #define TIME_OFFSET 136
 #define TYPE_OFFSET 156
+#define OWNR_OFFSET 265
+#define GRUP_OFFSET 297
 #define PREF_OFFSET 345
 
 int table_main(char *argv[], int num, int fd, int flags);
@@ -29,7 +29,8 @@ void read_blocks(int fd, long int size);
 void print_header(unsigned char *h_buf, unsigned char *path,
                   int flags, int type);
 
-void get_perms(unsigned char *h_buf, char permissions[8]);
+
+void print_perms(char *oct);
 
 void print_time(long int time);
 
