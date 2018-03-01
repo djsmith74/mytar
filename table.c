@@ -125,7 +125,7 @@ void print_header(unsigned char *h_buf, unsigned char *path,
    char permissions[8];
    char owner[8];
    char group[8];
-   /*char **endptr = NULL;*/
+   char **endptr = NULL;
 
    if (flags == 0) {
       /*print with verbose*/
@@ -181,8 +181,8 @@ void print_header(unsigned char *h_buf, unsigned char *path,
 
 
       /*print time*/
-/*      print_time(strtol((char*)&h_buf[TIME_OFFSET], endptr, 8));
-*/
+      print_time(strtol((char*)&h_buf[TIME_OFFSET], endptr, 8));
+
       /*print pathname*/
       printf("%s\n", path);
 
@@ -197,13 +197,11 @@ void print_header(unsigned char *h_buf, unsigned char *path,
 
 
 /*will print the time string*/
-/*void print_time(long int time) {
-   char time_str[16];
-   struct tim* tm_info;
+void print_time(long int time) {
+   char time_str[18];
+   time_t t = (time_t)time;
 
-   time(&time);
-   tm_info = localtime(&time);
-   strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M", tm_info);
+   strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M ", localtime(&t));
 
    printf("%s", time_str);
-}*/
+}
