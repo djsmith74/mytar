@@ -5,7 +5,9 @@
 
 void start_traverse(char *pathname, int outfd, int flags) {
 
-   printf("%s\n", pathname);    
+   if (flags == 0 || flags == 1) {
+      printf("%s\n", pathname);
+   }
    add_archive_entry(pathname, pathname, outfd, 2, flags);
    traverse(pathname, outfd, flags);
 
