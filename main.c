@@ -85,13 +85,13 @@ int *get_flags(char *c, int flags[]) {
          flags[1] = 1;
       }
       else if (*c == 'x') {
-         flags[1] = 2;
+         flags[2] = 1;
       }
       else if (*c == 'v') {
-         flags[1] = 3;
+         flags[3] = 1;
       }
       else if (*c == 'S') {
-         flags[1] = 4;
+         flags[4] = 1;
       }
       c++;
    }
