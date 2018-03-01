@@ -4,10 +4,21 @@
 #include "create.h"
 
 void start_traverse(char *pathname, int outfd, int flags) {
+   int i = 0;
+   char c;
 
    if (flags == 0 || flags == 1) {
-      printf("%s\n", pathname);
+      c = *pathname;
+      while(i < strlen(pathname) - 1) {
+         if (c != '/' && c != '\0') {
+            printf("%c", c);
+            c = pathname[i + 1];
+         }
+         i++;
+      }
+      printf("\n");
    }
+
    add_archive_entry(pathname, pathname, outfd, 2, flags);
    traverse(pathname, outfd, flags);
 
@@ -40,12 +51,12 @@ void traverse(char *pathname, int outfd, int flags) {
       if (S_ISDIR(curr.st_mode)) {
          /*printf("HELLO\n");*/
          /*strcat(pathname, entry->d_name);*/
-         strcat(pathname, "/");
          /*print path name if verbose is used*/
          if (flags == 0 || flags == 1) {
             printf("%s\n", pathname);
          }
 
+         strcat(pathname, "/");
          add_archive_entry(pathname, entry->d_name, outfd, 2, flags);
 
          traverse(pathname, outfd, flags);

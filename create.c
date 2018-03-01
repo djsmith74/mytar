@@ -450,7 +450,7 @@ char* create_prefix ( char *pathname ) {
     base_len = strlen(base_name);
     path_len = strlen(path_copy);
     prefix_len = path_len - base_len - 1;
-    if (prefix_len != 0) {
+    if (prefix_len > 0) {
         strncpy(prefix_buffer, path_copy2, prefix_len);    
     }
     /*dir_name = dirname(path_copy);*/
