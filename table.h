@@ -24,7 +24,7 @@ int table_main(char *argv[], int num, int fd, int flags);
 
 int read_headers(char *argv[], int num, int fd, int flags);
 
-void read_blocks(int fd);
+void read_blocks(int fd, long int size);
  
 void print_header(unsigned char *h_buf, unsigned char *path,
                   int flags, int type);
