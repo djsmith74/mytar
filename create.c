@@ -157,6 +157,7 @@ char* create_header ( char *pathname, char *name, int fileflag) {
         exit(EXIT_FAILURE);
     }
 
+    /*name_buff = create_name(pathname);*/
     name_buff = create_name(pathname);
     mode_buff = create_mode(sb);
     uid_buff = create_uid(sb);
@@ -211,8 +212,10 @@ char* create_header ( char *pathname, char *name, int fileflag) {
 /* Create the chksum field */
 char* create_chksum (int chk_sum) {
     int i;
+    int chksum_temp;
     char *chksum_buffer;
     
+    chksum_temp = chk_sum;
     chksum_buffer = calloc(CHKSUM_LEN, sizeof(char));
     memset(chksum_buffer, '\0', CHKSUM_LEN*sizeof(char)); 
     memset(chksum_buffer, '0', (CHKSUM_LEN-1)*sizeof(char));
@@ -223,7 +226,7 @@ char* create_chksum (int chk_sum) {
         /*printf("chksum_buffer: %c\n", chksum_buffer[i]);*/
         chk_sum = chk_sum / OCTAL_NUM;
         if (chk_sum != 0 && i == 0) {
-            insert_special_int(chksum_buffer, CHKSUM_LEN, chk_sum);
+            insert_special_int(chksum_buffer, CHKSUM_LEN, chksum_temp);
         }
         i--;
     }
@@ -233,18 +236,22 @@ char* create_chksum (int chk_sum) {
 /* Create the name field */
 char* create_name ( const char *pathname ) {
     char *name_buffer;
-    char *path_copy;
-    char *base_name;
     int name_len;
-    /*int rem_name_len;*/
-
+    char *path_copy;
+    /*char *base_name;*/
+    
+    path_copy = calloc(NAME_LEN, sizeof(char));
     path_copy = strdup(pathname);
     name_buffer = calloc(NAME_LEN, sizeof(char));
     memset(name_buffer, '\0', NAME_LEN*sizeof(char)); 
-    base_name = basename(path_copy);
+    /*base_name = basename(path_copy);
     name_len = strlen(base_name);
     if (name_len <= NAME_LEN) {
         strncpy(name_buffer, base_name, name_len);
+    }*/
+    name_len = strlen(pathname);
+    if (name_len <= NAME_LEN) {
+        strncpy(name_buffer, path_copy, name_len);
     }
     return name_buffer;
 }
@@ -262,11 +269,11 @@ char* create_mode ( struct stat sb ) {
     mode_hold = sb.st_mode;  
     i = MODE_LEN-2;
    
-    while (mode_hold != 0 && i > -1) {
+    while (mode_hold != 0 && i > 2) {
         mode_buffer[i] = (mode_hold % OCTAL_NUM) + ASCII_NUM_OFFSET;  
         mode_hold = mode_hold / OCTAL_NUM;
         if (mode_hold != 0 && i == 0) {
-            insert_special_int(mode_buffer, MODE_LEN, mode_hold);
+            insert_special_int(mode_buffer, MODE_LEN, sb.st_mode);
         }
         i--;
     }
@@ -289,7 +296,7 @@ char* create_uid (struct stat sb) {
         uid_buffer[i] = (uid_hold % OCTAL_NUM) + ASCII_NUM_OFFSET;  
         uid_hold = uid_hold / OCTAL_NUM;
         if (uid_hold != 0 && i == 0) {
-            insert_special_int(uid_buffer, UID_LEN, uid_hold);
+            insert_special_int(uid_buffer, UID_LEN, sb.st_uid);
         }
         i--;
     }
@@ -312,7 +319,7 @@ char* create_gid (struct stat sb) {
         gid_buffer[i] = (gid_hold % OCTAL_NUM) + ASCII_NUM_OFFSET;  
         gid_hold = gid_hold / OCTAL_NUM;
         if (gid_hold != 0 && i == 0) {
-            insert_special_int(gid_buffer, GID_LEN, gid_hold);
+            insert_special_int(gid_buffer, GID_LEN, sb.st_gid);
         }
         i--;
     }
@@ -327,20 +334,20 @@ char* create_size (struct stat sb, int filetype_flag) {
     int i;
     off_t size_hold;
     size_buffer = calloc(SIZE_LEN, sizeof(char)); 
-    memset(size_buffer, '0', SIZE_LEN*sizeof(char));   
+    memset(size_buffer, '0', (SIZE_LEN-1)*sizeof(char));   
     
     if (filetype_flag == 1 || filetype_flag == 2) {
         return size_buffer;    
     }
 
     size_hold = sb.st_size;  
-    i = SIZE_LEN-1;
+    i = SIZE_LEN-2;
    
     while (size_hold != 0 && i > -1) {
         size_buffer[i] = (size_hold % OCTAL_NUM) + ASCII_NUM_OFFSET;  
         size_hold = size_hold / OCTAL_NUM;
         if (size_hold != 0 && i == 0) {
-            insert_special_int(size_buffer, SIZE_LEN, size_hold);
+            insert_special_int(size_buffer, SIZE_LEN, sb.st_size);
         }
         i--;
     }
@@ -354,15 +361,15 @@ char* create_mtime (struct stat sb) {
     int i;
     time_t mtime_hold;
     mtime_buffer = calloc(MTIME_LEN, sizeof(char)); 
-    memset(mtime_buffer, '0', MTIME_LEN*sizeof(char));   
+    memset(mtime_buffer, '0', (MTIME_LEN-1)*sizeof(char));   
     mtime_hold = sb.st_mtime;  
-    i = MTIME_LEN-1;
+    i = MTIME_LEN-2;
    
     while (mtime_hold != 0 && i > -1) {
         mtime_buffer[i] = (mtime_hold % OCTAL_NUM) + ASCII_NUM_OFFSET;  
         mtime_hold = mtime_hold / OCTAL_NUM;
         if (mtime_hold != 0 && i == 0) {
-            insert_special_int(mtime_buffer, MTIME_LEN, mtime_hold);
+            insert_special_int(mtime_buffer, MTIME_LEN, sb.st_mtime);
         }
         i--;
     }
@@ -442,26 +449,19 @@ char* create_prefix ( char *pathname ) {
     int path_len;
     int prefix_len;
 
-    path_copy = strdup(pathname);
-    path_copy2 = strdup(pathname);
     prefix_buffer = calloc(PREFIX_LEN, sizeof(char));
-    /*memset(name_buffer, '\0', NAME_LEN*sizeof(char));*/
-    base_name = basename(path_copy);
-    base_len = strlen(base_name);
-    path_len = strlen(path_copy);
-    prefix_len = path_len - base_len - 1;
-    if (prefix_len > 0) {
-        strncpy(prefix_buffer, path_copy2, prefix_len);    
-    }
-    /*dir_name = dirname(path_copy);*/
-    /*prefix_len = strlen(dir_name);
-    if (prefix_len <= PREFIX_LEN) {
-        strncpy(prefix_buffer, dir_name, prefix_len);
-    }
-    else {
-        perror("prefix too long");
-        strncpy(prefix_buffer, dir_name, PREFIX_LEN);
-    }*/
+    
+    if (strlen(pathname) > NAME_LEN) {
+        path_copy = strdup(pathname);
+        path_copy2 = strdup(pathname);
+        base_name = basename(path_copy);
+        base_len = strlen(base_name);
+        path_len = strlen(path_copy);
+        prefix_len = path_len - base_len - 1;
+        if (prefix_len > 0) {
+            strncpy(prefix_buffer, path_copy2, prefix_len);    
+        }       
+    } 
     return prefix_buffer; 
 }
 
