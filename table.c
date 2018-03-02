@@ -13,24 +13,29 @@ int table_main(char *argv[], int argc, int fd, int flags) {
 int read_headers(char *argv[], int argc, int fd, int flags) {
    unsigned char h_buf[512];
    unsigned char *h_bufp;
-   unsigned char *path, *name;
+   unsigned char *path, *name, *pref;
    char **endptr = NULL;
    int i, k;
    int chksum;
 
    path = NULL;
    name = NULL;
+   pref = NULL;
 
-   if ((path = calloc(100, sizeof(char))) == NULL) {
-         perror("bad calloc");
-         exit(EXIT_FAILURE);
-      }
+   if ((pref = calloc(155, sizeof(char))) == NULL) {
+      perror("bad calloc");
+      exit(EXIT_FAILURE);
+   }
 
-      if ((name = calloc(155, sizeof(char))) == NULL) {
-         perror("bad calloc");
-         exit(EXIT_FAILURE);
-      }
+   if ((name = calloc(100, sizeof(char))) == NULL) {
+      perror("bad calloc");
+      exit(EXIT_FAILURE);
+   }
 
+   if ((path = calloc(255, sizeof(char))) == NULL) {
+      perror("bad calloc");
+      exit(EXIT_FAILURE);
+   }
 
    while (read(fd, &h_buf, sizeof(char) * 512) > 0) {
 
@@ -65,15 +70,21 @@ int read_headers(char *argv[], int argc, int fd, int flags) {
          exit(EXIT_FAILURE);
       }
 
+      /*get the prefix*/
       h_bufp = h_buf + PREF_OFFSET;
-      strcpy((char*)path, (char*)h_bufp);
-      /*get the prefix and the name*/
+      strcpy((char*)pref, (char*)h_bufp);
 
       h_bufp = h_buf + NAME_OFFSET;
       strcpy((char*)name, (char*)h_bufp);
 
-      /*turn the prefix and name into a path*/
-      strcat((char*)path,(char*)name);
+      if (pref[0] == '\0') {
+         /*turn the prefix and name into a path*/
+         strcat((char*)path,(char*)name);
+      }
+      else {
+         strcat((char*)path,(char*)pref);
+         strcat((char*)path,(char*)name);
+      }
 
 
       h_bufp = h_buf + TYPE_OFFSET;
