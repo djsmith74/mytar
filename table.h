@@ -21,6 +21,8 @@
 #define GRUP_OFFSET 297
 #define PREF_OFFSET 345
 
+#define MAX_NAME 100
+
 int table_main(char *argv[], int num, int fd, int flags);
 
 int read_headers(char *argv[], int num, int fd, int flags);

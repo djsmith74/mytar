@@ -27,7 +27,7 @@ int read_headers(char *argv[], int argc, int fd, int flags) {
       exit(EXIT_FAILURE);
    }
 
-   if ((name = calloc(100, sizeof(char))) == NULL) {
+   if ((name = calloc(101, sizeof(char))) == NULL) {
       perror("bad calloc");
       exit(EXIT_FAILURE);
    }
@@ -63,8 +63,6 @@ int read_headers(char *argv[], int argc, int fd, int flags) {
       }
 
       h_bufp = h_buf + CHKS_OFFSET;
-      /*printf("Header check: %lu\n", strtol((char*)h_bufp, endptr, 8));*/
-      /*printf("Counted check: %d\n", chksum);*/
       if (strtol((char*)h_bufp, endptr, 8) != chksum) {
          perror("Invalid header\n");
          exit(EXIT_FAILURE);
@@ -75,13 +73,15 @@ int read_headers(char *argv[], int argc, int fd, int flags) {
       strcpy((char*)pref, (char*)h_bufp);
 
       h_bufp = h_buf + NAME_OFFSET;
-      strcpy((char*)name, (char*)h_bufp);
-
       if (pref[0] == '\0') {
          /*turn the prefix and name into a path*/
-         path = name;
+         strcpy((char*)name, (char*)h_bufp);
+         strcpy((char*)path, (char*) name);
       }
       else {
+         strncpy((char*)name, (char*)h_bufp, MAX_NAME - 1);
+
+         strcat((char*)name, "\0");
          strcat((char*)path,(char*)pref);
          strcat((char*)path,(char*)name);
       }
