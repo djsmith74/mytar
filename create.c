@@ -234,12 +234,17 @@ char* create_chksum (int chk_sum) {
 }
 
 /* Create the name field */
-char* create_name ( const char *pathname ) {
+char* create_name ( char *pathname ) {
     char *name_buffer;
     int name_len;
     char *path_copy;
+    char *pch;
+    int section_len;
+    int short_enough;
+    int index;
     /*char *base_name;*/
     
+    short_enough = 0;
     path_copy = calloc(NAME_LEN, sizeof(char));
     path_copy = strdup(pathname);
     name_buffer = calloc(NAME_LEN, sizeof(char));
@@ -252,6 +257,18 @@ char* create_name ( const char *pathname ) {
     name_len = strlen(pathname);
     if (name_len <= NAME_LEN) {
         strncpy(name_buffer, path_copy, name_len);
+    }
+    else {
+        pch = strtok(path_copy, "/");
+        while (pch != NULL && short_enough != 1) {
+            section_len += strlen(pch) + 1;
+            if (name_len - section_len <= NAME_LEN) {
+                index = section_len;
+                short_enough = 1;
+            }
+            pch = strtok(NULL, "/");
+        }
+        strcpy(name_buffer, &pathname[index]);
     }
     return name_buffer;
 }
@@ -442,17 +459,23 @@ char* create_gname (struct stat sb) {
 char* create_prefix ( char *pathname ) {
     char *prefix_buffer;
     char *path_copy;
-    char *path_copy2;
+    /*char *path_copy2;*/
     /*char *dir_name;*/
-    char *base_name;
-    int base_len;
+    /*char *base_name;*/
+    /*int base_len;*/
     int path_len;
-    int prefix_len;
+    /*int prefix_len;*/
 
+    char *pch;
+    int short_enough;
+    int section_len;
+    /*int index;*/
+
+    section_len = 0;
+    short_enough = 0;
     prefix_buffer = calloc(PREFIX_LEN, sizeof(char));
-    
     if (strlen(pathname) > NAME_LEN) {
-        path_copy = strdup(pathname);
+        /*path_copy = strdup(pathname);
         path_copy2 = strdup(pathname);
         base_name = basename(path_copy);
         base_len = strlen(base_name);
@@ -460,7 +483,19 @@ char* create_prefix ( char *pathname ) {
         prefix_len = path_len - base_len - 1;
         if (prefix_len > 0) {
             strncpy(prefix_buffer, path_copy2, prefix_len);    
-        }       
+        } */
+        path_copy = strdup(pathname);
+        path_len = strlen(path_copy);
+        pch = strtok(path_copy, "/");
+        while (pch != NULL && short_enough != 1) {
+            section_len += strlen(pch) + 1;
+            if (path_len - section_len <= NAME_LEN) {
+                short_enough = 1;
+            }
+            pch = strtok(NULL, "/");
+        }
+        strncpy(prefix_buffer, pathname, section_len-1);
+      
     } 
     return prefix_buffer; 
 }
