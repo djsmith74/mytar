@@ -93,11 +93,11 @@ int read_headers(char *argv[], int argc, int fd, int flags) {
             for (i = 3; i < argc; i++) {
                if (strcmp((char*)path, argv[i]) == 0) {
                   print_header(h_buf, path, flags, 0);
-               }
 
-               if (strtol((char*)&h_buf[SIZE_OFFSET], endptr, 8) != 0) {
-                 /*printf("made it!\n");*/
-                 read_blocks(fd, strtol((char*)&h_buf[SIZE_OFFSET], endptr, 8));
+                  if (strtol((char*)&h_buf[SIZE_OFFSET], endptr, 8) != 0) {
+                     read_blocks(fd, strtol((char*)&h_buf[SIZE_OFFSET],
+                     endptr, 8)); /*not an error*/
+                  }
                }
             }
          }
@@ -155,7 +155,6 @@ void read_blocks(int fd, long int size) {
 
    /*breaks at first null block*/
    while (reads > 0) {
-      /*printf("daberoni\n");*/
       read(fd, &b_buf, sizeof(char) * 512);
       reads--;
    }
