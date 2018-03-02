@@ -18,16 +18,12 @@ int read_headers(char *argv[], int argc, int fd, int flags) {
    int i, k;
    int chksum;
 
-   path = NULL;
-   name = NULL;
-   pref = NULL;
-
    if ((pref = calloc(155, sizeof(char))) == NULL) {
       perror("bad calloc");
       exit(EXIT_FAILURE);
    }
 
-   if ((name = calloc(100, sizeof(char))) == NULL) {
+   if ((name = calloc(101, sizeof(char))) == NULL) {
       perror("bad calloc");
       exit(EXIT_FAILURE);
    }
@@ -63,8 +59,6 @@ int read_headers(char *argv[], int argc, int fd, int flags) {
       }
 
       h_bufp = h_buf + CHKS_OFFSET;
-      /*printf("Header check: %lu\n", strtol((char*)h_bufp, endptr, 8));*/
-      /*printf("Counted check: %d\n", chksum);*/
       if (strtol((char*)h_bufp, endptr, 8) != chksum) {
          perror("Invalid header\n");
          exit(EXIT_FAILURE);
@@ -73,17 +67,21 @@ int read_headers(char *argv[], int argc, int fd, int flags) {
       /*get the prefix*/
       h_bufp = h_buf + PREF_OFFSET;
       strcpy((char*)pref, (char*)h_bufp);
+      strcat((char*)pref, "\0");
 
       h_bufp = h_buf + NAME_OFFSET;
-      strcpy((char*)name, (char*)h_bufp);
-
       if (pref[0] == '\0') {
          /*turn the prefix and name into a path*/
-         path = name;
+         strncpy((char*)name, (char*)h_bufp, MAX_NAME);
+         strcat((char*)name, "\0");
+         strcpy((char*)path, (char*) name);
       }
       else {
+         strncpy((char*)name, (char*)h_bufp, MAX_NAME);
+         strcat((char*)name, "\0");
          strcat((char*)path,(char*)pref);
          strcat((char*)path,(char*)name);
+         strcat((char*)path, "\0");
       }
 
 
@@ -93,7 +91,7 @@ int read_headers(char *argv[], int argc, int fd, int flags) {
          if (argc > 3) {
             /*check if the current path contains the name of a requested path*/
             for (i = 3; i < argc; i++) {
-               if (strstr((char*)path, argv[i]) != NULL) {
+               if (strcmp((char*)path, argv[i]) == 0) {
                   print_header(h_buf, path, flags, 0);
                }
 
@@ -116,7 +114,7 @@ int read_headers(char *argv[], int argc, int fd, int flags) {
          if (argc > 3) {
             /*check if the current path contains the name of a requested path*/
             for (i = 3; i < argc; i++) {
-               if (strstr((char*)path, argv[i]) != NULL) {
+               if (strcmp((char*)path, argv[i]) == 0) {
                   if (*h_bufp == '5') {
                      /*printf("header %d, DIR\n", k);*/
                      /*type is dir*/
