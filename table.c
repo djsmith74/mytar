@@ -79,7 +79,7 @@ int read_headers(char *argv[], int argc, int fd, int flags) {
 
       if (pref[0] == '\0') {
          /*turn the prefix and name into a path*/
-         strcat((char*)path,(char*)name);
+         path = name;
       }
       else {
          strcat((char*)path,(char*)pref);
