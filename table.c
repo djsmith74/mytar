@@ -2,20 +2,21 @@
 
 #include "table.h"
 
-int table_main(char *argv[], int num, int fd, int flags) {
+int table_main(char *argv[], int argc, int fd, int flags) {
    /*this will do something sometime*/
-   read_headers(argv, num, fd, flags);
+   read_headers(argv, argc, fd, flags);
    return 0;
 }
 
 
 /*goes through entire file and prints all headers requested*/
-int read_headers(char *argv[], int num, int fd, int flags) {
+int read_headers(char *argv[], int argc, int fd, int flags) {
    unsigned char h_buf[512];
    unsigned char *h_bufp;
    unsigned char *path, *name;
    char **endptr = NULL;
    int i, k;
+   int chksum;
 
    path = NULL;
    name = NULL;
@@ -30,74 +31,108 @@ int read_headers(char *argv[], int num, int fd, int flags) {
          exit(EXIT_FAILURE);
       }
 
-   k = 0;
 
    while (read(fd, &h_buf, sizeof(char) * 512) > 0) {
-      /*if ((path = calloc(100, sizeof(char))) == NULL) {
-         perror("bad calloc");
+
+      /*check if null block*/
+      if (h_buf[0] == '\0') {
+         return 0;
+      }
+ 
+      /*chksum check to see if header is good*/
+      k = 0;
+      chksum = 0;
+      /*read before chksum field*/
+      for (; k < CHKS_OFFSET; k++) {
+         chksum += h_buf[k];
+      }
+
+      /*read after chksum field*/
+      for (k = CHKS_OFFSET + 8; k < 512; k++) {
+         chksum += h_buf[k];
+      }
+
+      /*add 8 spaces for chksum field*/
+      for (k = 0; k < 8; k++) {
+         chksum += ' ';
+      }
+
+      h_bufp = h_buf + CHKS_OFFSET;
+      /*printf("Header check: %lu\n", strtol((char*)h_bufp, endptr, 8));*/
+      /*printf("Counted check: %d\n", chksum);*/
+      if (strtol((char*)h_bufp, endptr, 8) != chksum) {
+         perror("Invalid header\n");
          exit(EXIT_FAILURE);
       }
 
-      if ((name = calloc(155, sizeof(char))) == NULL) {
-         perror("bad calloc");
-         exit(EXIT_FAILURE);
-      }*/
-      /*printf(" \n%s\n ", h_buf);*/
- 
       h_bufp = h_buf + PREF_OFFSET;
       strcpy((char*)path, (char*)h_bufp);
       /*get the prefix and the name*/
-      /*strcpy((char*)path, (char*)&h_buf[PREF_OFFSET]);*/
-      /*strcpy((char*)name, (char*)&h_buf[NAME_OFFSET]);*/
-
 
       h_bufp = h_buf + NAME_OFFSET;
-      /*printf("number: %d: %s ", k, h_buf);*/
       strcpy((char*)name, (char*)h_bufp);
 
-      /*strcpy((char*)name, (char*)(h_buf + NAME_OFFSET));*/
       /*turn the prefix and name into a path*/
       strcat((char*)path,(char*)name);
-      /*printf(" name %d: %s", k, name);*/
 
 
       h_bufp = h_buf + TYPE_OFFSET;
       /*header for a file*/
       if (*h_bufp == '0' || *h_bufp == '\0') {
-         /*printf("header %d, REG\n", k);*/
-         /*check if the current path contains the name of a requested path*/
-         for (i = 3; i < num; i++) {
-            if (strstr((char*)path, argv[i]) != NULL) {
-               print_header(h_buf, path, flags, 0);
+         if (argc > 3) {
+            /*check if the current path contains the name of a requested path*/
+            for (i = 3; i < argc; i++) {
+               if (strstr((char*)path, argv[i]) != NULL) {
+                  print_header(h_buf, path, flags, 0);
+               }
+
+               if (strtol((char*)&h_buf[SIZE_OFFSET], endptr, 8) != 0) {
+                 /*printf("made it!\n");*/
+                 read_blocks(fd, strtol((char*)&h_buf[SIZE_OFFSET], endptr, 8));
+               }
             }
          }
-         if (strtol((char*)&h_buf[SIZE_OFFSET], endptr, 8) != 0) {
-            /*printf("made it!\n");*/
-            read_blocks(fd, strtol((char*)&h_buf[SIZE_OFFSET], endptr, 8));
+         else {
+            print_header(h_buf, path, flags, 0);
+            if (strtol((char*)&h_buf[SIZE_OFFSET], endptr, 8) != 0) {
+               /*printf("made it!\n");*/
+               read_blocks(fd, strtol((char*)&h_buf[SIZE_OFFSET], endptr, 8));
+            }
          }
       }
       /*header for a dir/symlink*/
       else {
-         /*check if the current path contains the name of a requested path*/
-         for (i = 3; i < num; i++) {
-            if (strstr((char*)path, argv[i]) != NULL) {
-               if (*h_bufp == '5') {
-                  /*printf("header %d, DIR\n", k);*/
-                  /*type is dir*/
-                  print_header(h_buf, path, flags, 1);
+         if (argc > 3) {
+            /*check if the current path contains the name of a requested path*/
+            for (i = 3; i < argc; i++) {
+               if (strstr((char*)path, argv[i]) != NULL) {
+                  if (*h_bufp == '5') {
+                     /*printf("header %d, DIR\n", k);*/
+                     /*type is dir*/
+                     print_header(h_buf, path, flags, 1);
+                  }
+                  else {
+                     /*type is symlink*/
+                     /*printf("header %d, SYM\n", k);*/
+                     print_header(h_buf, path, flags, 2);
+                  }
+                  break; /*TODO might be wrong*/
                }
-               else {
-                  /*type is symlink*/
-                  /*printf("header %d, SYM\n", k);*/
-                  print_header(h_buf, path, flags, 2);
-               }
-               break; /*TODO might be wrong*/
+            }
+         }
+         else {
+            if (*h_bufp == '5') {
+               /*type is dir*/
+               print_header(h_buf, path, flags, 1);
+            }
+            else {
+               /*type is symlink*/
+               print_header(h_buf, path, flags, 2);
             }
          }
       }
-      k++;
    }
-   return 0;
+      return 0;
 }
 
 
@@ -145,30 +180,7 @@ void print_header(unsigned char *h_buf, unsigned char *path,
 
       /*print permissions*/
       print_perms((char*)&h_buf[MODE_OFFSET]);
-      /*i = 0;
-      snprintf(permissions, 10, "%09o", h_buf[MODE_OFFSET]);
-      while (i < 9) {
-         printf("%c\n", permissions[i]);
-         if (permissions[i] == '1') {
-            mod = i % 3;
-
-            if (mod == 1) {
-               printf("r");
-            }
-            else if (mod == 2) {
-               printf("w");
-            }
-            else {
-               printf("x");
-            }
-         }
-         else {
-            printf("-");
-         }
-         i++;
-      }
-      */
-      printf(" ");
+            printf(" ");
 
       /*print owner*/
       snprintf(owner, 32, "%s", (char*)&h_buf[OWNR_OFFSET]);

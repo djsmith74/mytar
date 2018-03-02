@@ -6,10 +6,17 @@
 void start_traverse(char *pathname, int outfd, int flags) {
    int i = 0;
    char c;
+   struct stat curr;
+
+   if (lstat(pathname, &curr) == -1) {
+         perror("first traverse");
+         exit(EXIT_FAILURE);
+   }
+
 
    if (flags == 0 || flags == 1) {
       c = *pathname;
-      while(i < strlen(pathname) - 1) {
+      while(i < strlen(pathname)) {
          if (c != '/' && c != '\0') {
             printf("%c", c);
             c = pathname[i + 1];
@@ -19,9 +26,17 @@ void start_traverse(char *pathname, int outfd, int flags) {
       printf("\n");
    }
 
-   add_archive_entry(pathname, pathname, outfd, 2, flags);
-   traverse(pathname, outfd, flags);
+   if (S_ISDIR(curr.st_mode)) {
+      add_archive_entry(pathname, pathname, outfd, 2, flags);
+      traverse(pathname, outfd, flags);
+   }
+   else if (S_ISREG(curr.st_mode)) {
+      add_archive_entry(pathname, pathname, outfd, 0, flags);
+   }
 
+   else if (S_ISLNK(curr.st_mode)) {
+      add_archive_entry(pathname, pathname, outfd, 1, flags);
+   }
 }
 
 void traverse(char *pathname, int outfd, int flags) {
@@ -34,7 +49,7 @@ void traverse(char *pathname, int outfd, int flags) {
    /*printf("flags: %d\n", flags);*/
    /*printf("dab\n");*/
    if ((dp = opendir(pathname)) == NULL) {
-      perror("traverse");
+      perror("traverse dir");
       exit(EXIT_FAILURE);
    }
 

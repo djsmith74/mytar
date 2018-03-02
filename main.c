@@ -10,13 +10,20 @@ int main(int argc, char *argv[]) {
 
    /*check number of command line arguments*/
    if (argc < 3) {
-      printf("Invalid number of arguments\n");
+      perror("Invalid number of arguments\n");
       exit(EXIT_FAILURE);
    }
 
 
    /*check the flags*/
    get_flags(argv[1], flags);
+
+   if (flags[0] == -1) {
+      /*printf("you must specify at least one of the 'ctx' options.\n");*/
+      perror("Usage: mytar [ctxSp[f tarfile]] [file1 [ file2 [...] ] ]\n");
+      return 1;
+   }
+
 
    if (flags[0] == 1) {
       /*c flag*/
@@ -77,6 +84,7 @@ int main(int argc, char *argv[]) {
 
 /*fills flags array based on the command line argument string*/
 int *get_flags(char *c, int flags[]) {
+   int i = 0;
    while (*c != '\0') {
       if (*c == 'c') {
          flags[0] = 1;
@@ -93,7 +101,18 @@ int *get_flags(char *c, int flags[]) {
       else if (*c == 'S') {
          flags[4] = 1;
       }
+      else if (*c == 'f') {
+         /*do nothing*/
+         ;
+      }
+      else {
+         /*printf("unrecognized option: '%c'.\n", *c);*/
+         i = 1;
+      }
       c++;
+   }
+   if (i == 1) {
+      flags[0] = -1;
    }
    return flags;
 }
